@@ -136,7 +136,7 @@ Measured against the metrics defined in §4.3, over the deployed single instance
 
 These are demo-scale targets to validate the design, not contractual production SLAs (see §5 — no HA/multi-instance, no persistence).
 
-## 11. Milestone Plan (build one at a time, stop for confirmation after each)
+## 11. Milestone Plan (build one at a time, proceed through all without stopping for confirmation)
 
 1. Skeleton FastAPI app + `/healthz`, `/readyz`, `/metrics`, structured logging middleware, config via env vars — runnable, deployable no-op.
 2. Domain models, `JobRepository`/`JobQueue`/`JobProcessor` protocols, `MockProcessor`.
