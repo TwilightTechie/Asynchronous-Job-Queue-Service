@@ -1,0 +1,15 @@
+# Claude Code local session state (not project source)
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.env
+
+# OS
+.DS_Store
