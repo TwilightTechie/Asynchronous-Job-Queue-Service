@@ -1,0 +1,19 @@
+name: jobqueue
+region: nyc
+services:
+  - name: web
+    github:
+      repo: TwilightTechie/Asynchronous-Job-Queue-Service
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    source_dir: /
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    envs:
+      - key: PORT
+        scope: RUN_TIME
+        value: "8080"
+    health_check:
+      http_path: /healthz
