@@ -1,12 +1,12 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.models import Job, JobStatus, JobType
 from app.repository import InMemoryJobRepository
 
 
 def _make_job(**overrides) -> Job:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     defaults = dict(
         id=uuid.uuid4(),
         type=JobType.REPORT,

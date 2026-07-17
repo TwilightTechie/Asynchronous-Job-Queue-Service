@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.models import Job, JobStatus, JobType
 from app.repository import JobRepository
@@ -11,7 +11,7 @@ class JobService:
         self._max_attempts = max_attempts
 
     def submit_job(self, job_type: JobType, input: dict) -> Job:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         job = Job(
             id=uuid.uuid4(),
             type=job_type,

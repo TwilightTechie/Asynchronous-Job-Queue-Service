@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.models import Job, JobStatus, JobType
 
@@ -18,7 +18,7 @@ def test_job_status_values():
 
 
 def test_job_construction_defaults():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     job = Job(
         id=uuid.uuid4(),
         type=JobType.REPORT,
