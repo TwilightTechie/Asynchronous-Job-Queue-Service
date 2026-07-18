@@ -8,6 +8,8 @@ class JobQueue(Protocol):
 
     async def get(self) -> UUID: ...
 
+    def qsize(self) -> int: ...
+
 
 class AsyncioJobQueue:
     def __init__(self) -> None:
@@ -18,3 +20,6 @@ class AsyncioJobQueue:
 
     async def get(self) -> UUID:
         return await self._queue.get()
+
+    def qsize(self) -> int:
+        return self._queue.qsize()

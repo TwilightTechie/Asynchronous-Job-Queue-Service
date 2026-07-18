@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Request, status
 
 from app.models import JobStatus
+from app.observability.metrics import record_job_submitted
 from app.schemas import JobCreateRequest, JobCreateResponse, JobListResponse, JobResponse
 
 router = APIRouter()
@@ -11,6 +12,7 @@ router = APIRouter()
 @router.post("/jobs", status_code=status.HTTP_201_CREATED, response_model=JobCreateResponse)
 async def create_job(payload: JobCreateRequest, request: Request) -> JobCreateResponse:
     job = request.app.state.job_service.submit_job(payload.type, payload.input)
+    record_job_submitted()
     return JobCreateResponse(id=job.id, status=job.status, created_at=job.created_at)
 
 

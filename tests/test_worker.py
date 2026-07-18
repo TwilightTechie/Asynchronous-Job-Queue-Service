@@ -60,3 +60,32 @@ def test_worker_retries_then_fails_after_max_attempts():
         assert final.error is not None
 
     asyncio.run(scenario())
+
+
+def test_worker_records_job_failed_metric_only_on_final_failure():
+    from prometheus_client import REGISTRY
+
+    async def scenario():
+        repo = InMemoryJobRepository()
+        queue = AsyncioJobQueue()
+        service = JobService(repository=repo, queue=queue, max_attempts=1)
+        processor = MockProcessor(min_sleep_seconds=0, max_sleep_seconds=0, failure_rate=1.0)
+        stop_event = asyncio.Event()
+
+        before = REGISTRY.get_sample_value("jobs_failed_total") or 0.0
+
+        job = service.submit_job(JobType.EXPORT, {})
+        worker_task = asyncio.create_task(run_worker(queue, service, processor, stop_event))
+
+        for _ in range(50):
+            await asyncio.sleep(0.02)
+            if repo.get(job.id).status == JobStatus.FAILED:
+                break
+
+        stop_event.set()
+        await asyncio.wait_for(worker_task, timeout=2)
+
+        after = REGISTRY.get_sample_value("jobs_failed_total") or 0.0
+        assert after == before + 1.0
+
+    asyncio.run(scenario())

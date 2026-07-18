@@ -24,3 +24,15 @@ def test_get_waits_for_an_item_to_be_put():
         return await get_task
 
     assert asyncio.run(scenario()) == job_id
+
+
+def test_qsize_reflects_pending_items():
+    queue = AsyncioJobQueue()
+    assert queue.qsize() == 0
+
+    queue.put_nowait(uuid.uuid4())
+    queue.put_nowait(uuid.uuid4())
+    assert queue.qsize() == 2
+
+    asyncio.run(queue.get())
+    assert queue.qsize() == 1
