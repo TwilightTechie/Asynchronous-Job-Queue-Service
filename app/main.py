@@ -13,6 +13,7 @@ from app.queue import AsyncioJobQueue
 from app.repository import InMemoryJobRepository
 from app.routes.health import router as health_router
 from app.routes.jobs import router as jobs_router
+from app.routes.metrics import router as metrics_router
 from app.service import JobService
 from app.worker import run_worker
 
@@ -61,6 +62,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_middleware(ObservabilityMiddleware, logger=logger)
     app.include_router(health_router)
     app.include_router(jobs_router)
+    app.include_router(metrics_router)
     return app
 
 
