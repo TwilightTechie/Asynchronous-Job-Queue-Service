@@ -47,3 +47,33 @@ def test_save_overwrites_existing_job():
     repo.save(updated)
 
     assert repo.get(job.id).status == JobStatus.RUNNING
+
+
+def test_list_returns_all_jobs_newest_first():
+    repo = InMemoryJobRepository()
+    older = _make_job(created_at=datetime(2026, 1, 1, tzinfo=UTC))
+    newer = _make_job(created_at=datetime(2026, 1, 2, tzinfo=UTC))
+    repo.save(older)
+    repo.save(newer)
+
+    result = repo.list()
+
+    assert result == [newer, older]
+
+
+def test_list_filters_by_status():
+    repo = InMemoryJobRepository()
+    queued = _make_job(status=JobStatus.QUEUED)
+    completed = _make_job(status=JobStatus.COMPLETED)
+    repo.save(queued)
+    repo.save(completed)
+
+    result = repo.list(status=JobStatus.COMPLETED)
+
+    assert result == [completed]
+
+
+def test_list_on_empty_repository_returns_empty_list():
+    repo = InMemoryJobRepository()
+
+    assert repo.list() == []
