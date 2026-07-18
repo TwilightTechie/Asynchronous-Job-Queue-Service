@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -25,3 +27,16 @@ def install_exception_handlers(app: FastAPI) -> None:
             status_code=status.HTTP_404_NOT_FOUND,
             content=body.model_dump(),
         )
+
+    @app.exception_handler(Exception)
+    async def handle_unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
+        req_id = getattr(request.state, "req_id", None) or str(uuid.uuid4())
+        body = ErrorResponse(
+            error=ErrorDetail(code="internal_error", message="internal server error")
+        )
+        response = JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=body.model_dump(),
+        )
+        response.headers["X-Request-ID"] = req_id
+        return response

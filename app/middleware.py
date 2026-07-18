@@ -18,6 +18,7 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         req_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+        request.state.req_id = req_id
         start = time.perf_counter()
 
         try:
