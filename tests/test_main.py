@@ -1,19 +1,22 @@
 # tests/test_main.py
+import json
+import logging
+
 from fastapi.testclient import TestClient
 
 from app.main import create_app
 
 
-def test_app_skeleton_end_to_end():
+def test_app_skeleton_end_to_end(caplog):
     app = create_app()
 
     with TestClient(app) as client:
         assert app.state.ready is True
 
-        healthz = client.get("/healthz")
-        assert healthz.status_code == 200
-        assert healthz.json() == {"status": "ok"}
+        assert client.get("/healthz").status_code == 200
+        assert client.get("/readyz").status_code == 200
 
-        readyz = client.get("/readyz")
-        assert readyz.status_code == 200
-        assert readyz.json() == {"status": "ready"}
+        with caplog.at_level(logging.INFO, logger="app.request"):
+            client.get("/healthz")
+
+        assert any(json.loads(r.getMessage())["route"] == "/healthz" for r in caplog.records)

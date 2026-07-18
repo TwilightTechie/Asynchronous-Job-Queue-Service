@@ -6,6 +6,8 @@ from fastapi import FastAPI
 
 from app.config import Settings, get_settings
 from app.errors import install_exception_handlers
+from app.middleware import ObservabilityMiddleware
+from app.observability.logging import configure_logging
 from app.processor import MockProcessor
 from app.queue import AsyncioJobQueue
 from app.repository import InMemoryJobRepository
@@ -17,6 +19,7 @@ from app.worker import run_worker
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
+    logger = configure_logging(settings.log_level)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -55,6 +58,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         max_attempts=settings.max_attempts,
     )
     install_exception_handlers(app)
+    app.add_middleware(ObservabilityMiddleware, logger=logger)
     app.include_router(health_router)
     app.include_router(jobs_router)
     return app
