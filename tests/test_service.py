@@ -101,6 +101,7 @@ def test_mark_completed_sets_result_and_status():
 
     assert updated.status == JobStatus.COMPLETED
     assert updated.result == {"message": "done"}
+    assert updated.attempts == 1
 
 
 def test_mark_failed_or_retry_requeues_when_attempts_remain():

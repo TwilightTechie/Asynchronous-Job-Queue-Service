@@ -55,6 +55,7 @@ class JobService:
             update={
                 "status": JobStatus.COMPLETED,
                 "result": result,
+                "attempts": job.attempts + 1,
                 "updated_at": datetime.now(UTC),
             }
         )
