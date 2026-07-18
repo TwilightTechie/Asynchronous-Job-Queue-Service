@@ -18,6 +18,9 @@ async def run_worker(
         except TimeoutError:
             continue
 
+        if stop_event.is_set():
+            break
+
         job = service.mark_running(job_id)
         try:
             result = await processor.process(job)

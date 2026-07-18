@@ -33,7 +33,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
         app.state.ready = False
         stop_event.set()
-        await asyncio.wait_for(asyncio.gather(*workers), timeout=30)
+        try:
+            await asyncio.wait_for(asyncio.gather(*workers), timeout=30)
+        except TimeoutError:
+            for worker in workers:
+                worker.cancel()
 
     app = FastAPI(lifespan=lifespan)
     app.state.settings = settings
