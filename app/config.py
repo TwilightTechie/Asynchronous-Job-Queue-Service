@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     mock_min_sleep_seconds: float = 2.0
     mock_max_sleep_seconds: float = 10.0
     mock_failure_rate: float = 0.2
+    log_level: str = "INFO"
 
 
 def get_settings() -> Settings:

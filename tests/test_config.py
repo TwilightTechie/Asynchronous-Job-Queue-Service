@@ -71,3 +71,13 @@ def test_settings_mock_failure_rate_default(monkeypatch):
 def test_settings_mock_failure_rate_reads_env_var(monkeypatch):
     monkeypatch.setenv("MOCK_FAILURE_RATE", "0.5")
     assert Settings().mock_failure_rate == 0.5
+
+
+def test_settings_log_level_default(monkeypatch):
+    monkeypatch.delenv("LOG_LEVEL", raising=False)
+    assert Settings().log_level == "INFO"
+
+
+def test_settings_log_level_reads_env_var(monkeypatch):
+    monkeypatch.setenv("LOG_LEVEL", "DEBUG")
+    assert Settings().log_level == "DEBUG"
