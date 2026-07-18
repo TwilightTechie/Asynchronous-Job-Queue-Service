@@ -20,7 +20,22 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         req_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
         start = time.perf_counter()
 
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:
+            duration_seconds = time.perf_counter() - start
+            route = request.scope.get("route")
+            route_path = route.path if route is not None else request.url.path
+            record_request(request.method, route_path, 500, duration_seconds)
+            log_request(
+                self.logger,
+                ts=datetime.now(UTC).isoformat(),
+                req_id=req_id,
+                route=route_path,
+                status_code=500,
+                dur_ms=duration_seconds * 1000,
+            )
+            raise
 
         duration_seconds = time.perf_counter() - start
         route = request.scope.get("route")
