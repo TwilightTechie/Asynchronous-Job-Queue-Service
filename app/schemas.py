@@ -17,6 +17,19 @@ class JobCreateResponse(BaseModel):
     created_at: datetime
 
 
+class JobResponse(BaseModel):
+    id: UUID
+    type: JobType
+    input: dict
+    status: JobStatus
+    result: dict | None
+    error: str | None
+    attempts: int
+    max_attempts: int
+    created_at: datetime
+    updated_at: datetime
+
+
 class ErrorDetail(BaseModel):
     code: str
     message: str

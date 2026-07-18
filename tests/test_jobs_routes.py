@@ -40,3 +40,31 @@ def test_post_jobs_missing_input_returns_structured_422():
 
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "invalid_request"
+
+
+def test_get_job_returns_full_job_state():
+    client = TestClient(create_app())
+    created = client.post("/jobs", json={"type": "report", "input": {"a": 1}}).json()
+
+    response = client.get(f"/jobs/{created['id']}")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["id"] == created["id"]
+    assert body["type"] == "report"
+    assert body["input"] == {"a": 1}
+    assert body["status"] == "queued"
+    assert body["attempts"] == 0
+    assert "max_attempts" in body
+    assert "created_at" in body
+    assert "updated_at" in body
+
+
+def test_get_job_unknown_id_returns_structured_404():
+    client = TestClient(create_app())
+
+    response = client.get("/jobs/00000000-0000-0000-0000-000000000000")
+
+    assert response.status_code == 404
+    body = response.json()
+    assert body["error"]["code"] == "job_not_found"

@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.exceptions import JobNotFoundError
 from app.schemas import ErrorDetail, ErrorResponse
 
 
@@ -14,5 +15,13 @@ def install_exception_handlers(app: FastAPI) -> None:
         body = ErrorResponse(error=ErrorDetail(code="invalid_request", message=message))
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=body.model_dump(),
+        )
+
+    @app.exception_handler(JobNotFoundError)
+    async def handle_job_not_found(request: Request, exc: JobNotFoundError) -> JSONResponse:
+        body = ErrorResponse(error=ErrorDetail(code="job_not_found", message=str(exc)))
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
             content=body.model_dump(),
         )
