@@ -2,7 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Request, status
 
-from app.schemas import JobCreateRequest, JobCreateResponse, JobResponse
+from app.models import JobStatus
+from app.schemas import JobCreateRequest, JobCreateResponse, JobListResponse, JobResponse
 
 router = APIRouter()
 
@@ -11,6 +12,12 @@ router = APIRouter()
 async def create_job(payload: JobCreateRequest, request: Request) -> JobCreateResponse:
     job = request.app.state.job_service.submit_job(payload.type, payload.input)
     return JobCreateResponse(id=job.id, status=job.status, created_at=job.created_at)
+
+
+@router.get("/jobs", response_model=JobListResponse)
+async def list_jobs(request: Request, status: JobStatus | None = None) -> JobListResponse:
+    jobs = request.app.state.job_service.list_jobs(status)
+    return JobListResponse(jobs=[JobResponse(**job.model_dump()) for job in jobs])
 
 
 @router.get("/jobs/{job_id}", response_model=JobResponse)

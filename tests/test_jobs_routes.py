@@ -68,3 +68,36 @@ def test_get_job_unknown_id_returns_structured_404():
     assert response.status_code == 404
     body = response.json()
     assert body["error"]["code"] == "job_not_found"
+
+
+def test_list_jobs_returns_all_jobs():
+    client = TestClient(create_app())
+    client.post("/jobs", json={"type": "report", "input": {}})
+    client.post("/jobs", json={"type": "export", "input": {}})
+
+    response = client.get("/jobs")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["jobs"]) == 2
+
+
+def test_list_jobs_filters_by_status():
+    client = TestClient(create_app())
+    client.post("/jobs", json={"type": "report", "input": {}})
+
+    response = client.get("/jobs", params={"status": "queued"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["jobs"]) == 1
+    assert body["jobs"][0]["status"] == "queued"
+
+
+def test_list_jobs_invalid_status_returns_structured_422():
+    client = TestClient(create_app())
+
+    response = client.get("/jobs", params={"status": "not-a-real-status"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_request"

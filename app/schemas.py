@@ -30,6 +30,10 @@ class JobResponse(BaseModel):
     updated_at: datetime
 
 
+class JobListResponse(BaseModel):
+    jobs: list[JobResponse]
+
+
 class ErrorDetail(BaseModel):
     code: str
     message: str
